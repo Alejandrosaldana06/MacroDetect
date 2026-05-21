@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+torch
+torchvision
+Pillow
+numpy
+albumentations
+matplotlib
+python-multipart
+requests
+tqdm

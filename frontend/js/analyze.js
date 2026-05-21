@@ -1,0 +1,118 @@
+const imageInput = document.getElementById("imageInput");
+const resultsSection = document.getElementById("resultsSection");
+const originalImage = document.getElementById("originalImage");
+const maskImage = document.getElementById("maskImage");
+const barsContainer = document.getElementById("barsContainer");
+const loadingText = document.getElementById("loadingText");
+const selectedFileName = document.getElementById("selectedFileName");
+
+const macroColors = {
+  proteins: "#1f77b4",
+  carbohydrates: "#ff7f0e",
+  fats: "#2ca02c",
+  vegetables: "#d62728",
+  other: "#e377c2",
+};
+
+let selectedFile = null;
+
+imageInput.addEventListener("change", () => {
+
+  selectedFile = imageInput.files[0];
+  selectedFileName.textContent = selectedFile
+  ? selectedFile.name
+  : "No image selected";
+
+  if (!selectedFile) return;
+
+  resultsSection.style.display = "none";
+  maskImage.src = "";
+  barsContainer.innerHTML = "";
+  sessionStorage.removeItem("maskImage");
+  sessionStorage.removeItem("percentages");
+  const reader = new FileReader();
+  reader.onload = () => {
+    originalImage.src = reader.result;
+
+    analyzeBtn.disabled = false;
+  };
+  reader.readAsDataURL(selectedFile);
+
+});
+
+
+analyzeBtn.addEventListener("click", async () => {
+  if (!selectedFile) return;
+
+  analyzeBtn.disabled = true;
+  analyzeBtn.textContent = "Analyzing...";
+  loadingText.style.display = "block";
+
+  const formData = new FormData();
+  formData.append("file", selectedFile);
+
+  try {
+    const response = await fetch("http://localhost:8000/predict/", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error("Error al predecir imagen.");
+    }
+
+    const data = await response.json();
+    resultsSection.style.display = "block";
+    maskImage.src = `data:image/png;base64,${data.mask}`;
+
+
+    sessionStorage.setItem("originalImage", originalImage.src);
+    sessionStorage.setItem("maskImage", maskImage.src);
+    sessionStorage.setItem("percentages", JSON.stringify(data.percentages));
+
+
+barsContainer.innerHTML = "";
+
+Object.entries(data.percentages).forEach(([macro, percentage]) => {
+
+  const card = document.createElement("div");
+
+  card.className = "macro-card";
+
+  card.innerHTML = `
+
+  <div class="macro-header">
+    <span class="macro-name">
+      ${macro.charAt(0).toUpperCase() + macro.slice(1)}
+    </span>
+
+    <span class="macro-percentage">
+      ${percentage}%
+    </span>
+  </div>
+
+  <div class="horizontal-bar">
+    <div 
+      class="horizontal-fill"
+      style="
+        width:${percentage}%;
+        background:${macroColors[macro]}
+      ">
+    </div>
+  </div>
+
+`;
+
+  barsContainer.appendChild(card);
+
+});
+  } catch (error) {
+    console.error(error);
+    alert("Hubo un error al analizar la imagen.");
+  } finally {
+    loadingText.style.display = "none";
+    analyzeBtn.disabled = false;
+    analyzeBtn.textContent = "Analyze Meal";
+    
+  }
+});
