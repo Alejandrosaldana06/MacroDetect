@@ -2,8 +2,8 @@ import os
 import requests
 from tqdm import tqdm
 
-MODEL_ID = "17PLLpcWq31U5Qu4SfINM-Kqfp34vrUWk"
-MODEL_PATH = "backend/model/unet_resnet50.pth"
+MODEL_ID = "1SdH4zte5QoSmw6d7CQXLnj9r8BD6TtZF"
+MODEL_PATH = "backend/model/unet_resnet101.pth"
 BASE_URL = "https://docs.google.com/uc?export=download"
 
 def download_file_from_google_drive(id, destination):
