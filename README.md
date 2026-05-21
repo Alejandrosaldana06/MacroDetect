@@ -201,7 +201,7 @@ http://localhost:8080
 
 The training dataset and generated segmentation masks are not included in the repository due to GitHub storage limitations.
 
-> Google Drive download: `PASTE_YOUR_TRAINING_LINK_HERE`
+> Google Drive download: https://drive.google.com/file/d/1d25EhNF_ySuChQ5jgWn2plig4_aa768Z/view?usp=sharing
 
 ---
 
